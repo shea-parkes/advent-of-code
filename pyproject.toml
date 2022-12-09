@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "Shea Advent of Code"
+version = "0.42.0"
+description = "Shea play space for Advent of Code"
+authors = ["Shea Parkes"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+black = "^22.10.0"
+isort = "^5.10.1"
+pylint = "^2.15.5"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+mypy = "^0.982"
+ipython = "^8.6.0"
+pynvim = "^0.4.3"
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov-report html:cov_html --cov=# add target directory here --cov-fail-under=90"
+
+[tool.pylint."master"]
+fail-under=9
+init-hook="import sys; sys.setrecursionlimit(5000)"
+jobs=1
+
+[tool.pylint."typecheck"]
+generated-members=[
+   "pydantic.*"
+]
+
+[tool.pylint."messages control"]
+disable=[
+    "bad-continuation",
+    "wrong-import-order"
+]
