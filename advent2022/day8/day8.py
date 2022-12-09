@@ -51,7 +51,7 @@ def determine_visibility(row):
     )
     return z.pipe(
         zip(row, max_prior_heights),
-        z.map(lambda x: op.gt(*x)),
+        z.map(lambda tree_and_max: op.gt(*tree_and_max)),
         list,
         np.array,
     )
