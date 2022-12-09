@@ -5,15 +5,16 @@ description = "Shea play space for Advent of Code"
 authors = ["Shea Parkes"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 black = "^22.10.0"
 isort = "^5.10.1"
 pylint = "^2.15.5"
 pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
-mypy = "^0.982"
+mypy = "0.*"
 ipython = "^8.6.0"
-pynvim = "^0.4.3"
+pynvim = "0.*"
+cytoolz = "0.*"
 
 [tool.isort]
 profile = "black"
