@@ -26,18 +26,18 @@ assert trees.shape[0] == trees.shape[1]
 def apply_in_all_directions(func, arr):
     """Apply a row-wise function in all four directions"""
 
-    def apply_on_angle(angle):
+    def rotate_and_apply(n_rotations):
         """Inner closure"""
         return z.pipe(
             arr,
-            z.partial(np.rot90, k=angle),
+            z.partial(np.rot90, k=n_rotations),
             z.partial(np.apply_along_axis, func, 0),
-            z.partial(np.rot90, k=4 - angle),
+            z.partial(np.rot90, k=4 - n_rotations),
         )
 
     return z.pipe(
         range(4),
-        z.map(apply_on_angle),
+        z.map(rotate_and_apply),
     )
 
 
