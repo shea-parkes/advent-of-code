@@ -35,10 +35,13 @@ def apply_in_all_directions(func, arr):
     """Apply a row-wise function in all four directions"""
     accum = []
     for angle in range(4):
-        spun = np.rot90(arr, angle)
-        result_spun = np.apply_along_axis(func, 0, spun)
-        result_orig = np.rot90(result_spun, 4 - angle)
-        accum.append(result_orig)
+        z.pipe(
+            arr,
+            z.partial(np.rot90, k=angle),
+            z.partial(np.apply_along_axis, func, 0),
+            z.partial(np.rot90, k=4 - angle),
+            accum.append,
+        )
     return accum
 
 
