@@ -1,3 +1,5 @@
+import operator as op
+
 import cytoolz.curried as z
 import numpy as np
 
@@ -20,6 +22,25 @@ trees = z.pipe(
 assert trees.shape[0] == trees.shape[1]
 
 
+@z.curry
+def apply_in_all_directions(func, arr):
+    """Apply a row-wise function in all four directions"""
+
+    def apply_on_angle(angle):
+        """Inner closure"""
+        return z.pipe(
+            arr,
+            z.partial(np.rot90, k=angle),
+            z.partial(np.apply_along_axis, func, 0),
+            z.partial(np.rot90, k=4 - angle),
+        )
+
+    return z.pipe(
+        range(4),
+        z.map(apply_on_angle),
+    )
+
+
 def determine_visibility(row):
     """Determine visibility of a given row"""
     max_height = -1
@@ -28,21 +49,6 @@ def determine_visibility(row):
         visibility.append(tree > max_height)
         max_height = max(tree, max_height)
     return np.array(visibility)
-
-
-@z.curry
-def apply_in_all_directions(func, arr):
-    """Apply a row-wise function in all four directions"""
-    accum = []
-    for angle in range(4):
-        z.pipe(
-            arr,
-            z.partial(np.rot90, k=angle),
-            z.partial(np.apply_along_axis, func, 0),
-            z.partial(np.rot90, k=4 - angle),
-            accum.append,
-        )
-    return accum
 
 
 z.pipe(
