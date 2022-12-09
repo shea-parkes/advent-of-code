@@ -1,3 +1,4 @@
+import collections
 import operator as op
 
 import cytoolz.curried as z
@@ -43,12 +44,17 @@ def apply_in_all_directions(func, arr):
 
 def determine_visibility(row):
     """Determine visibility of a given row"""
-    max_height = -1
-    visibility = []
-    for tree in row:
-        visibility.append(tree > max_height)
-        max_height = max(tree, max_height)
-    return np.array(visibility)
+    max_prior_heights = z.accumulate(
+        max,
+        row,
+        -1,
+    )
+    return z.pipe(
+        zip(row, max_prior_heights),
+        z.map(lambda x: op.gt(*x)),
+        list,
+        np.array,
+    )
 
 
 z.pipe(
@@ -61,16 +67,16 @@ z.pipe(
 
 def calc_scenic_scores(row):
     """Determine scenic scores of the row"""
-    prior_trees = []
+    prior_trees = collections.deque()
     scenic_scores = []
     for tree in row:
         scenic_score = 0
-        for reversed_tree in reversed(prior_trees):
+        for prior_tree in prior_trees:
             scenic_score += 1
-            if reversed_tree >= tree:
+            if prior_tree >= tree:
                 break
         scenic_scores.append(scenic_score)
-        prior_trees.append(tree)
+        prior_trees.appendleft(tree)
     return np.array(scenic_scores)
 
 
