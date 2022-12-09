@@ -15,6 +15,7 @@ mypy = "0.*"
 ipython = "^8.6.0"
 pynvim = "0.*"
 cytoolz = "0.*"
+numpy = "^1.23.5"
 
 [tool.isort]
 profile = "black"
