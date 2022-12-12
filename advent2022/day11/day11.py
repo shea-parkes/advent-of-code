@@ -7,12 +7,10 @@ import typing
 import cytoolz.curried as z
 
 
-def is_divisible(denom):
+@z.curry
+def is_divisible(denom, numer):
     """Build a divisibility checker"""
-    return z.compose_left(
-        z.flip(op.mod)(denom),
-        op.not_,
-    )
+    return not numer % denom
 
 
 @dataclasses.dataclass
