@@ -1,10 +1,10 @@
 """Day 11, CY2022.  Monkey flinging"""
 import collections
 import dataclasses
-import operator as op
 import typing
 
 import cytoolz.curried as z
+import cytoolz.curried.operator as zop
 
 
 @z.curry
@@ -43,56 +43,56 @@ class Monkey:
 MONKEYS = (
     Monkey(
         items=collections.deque((93, 98)),
-        operation=z.curry(op.mul)(17),
+        operation=zop.mul(17),
         test=is_divisible(19),
         target_true=5,
         target_false=3,
     ),
     Monkey(
         items=collections.deque((95, 72, 98, 82, 86)),
-        operation=z.curry(op.add)(5),
+        operation=zop.add(5),
         test=is_divisible(13),
         target_true=7,
         target_false=6,
     ),
     Monkey(
         items=collections.deque((85, 62, 82, 86, 70, 65, 83, 76)),
-        operation=z.curry(op.add)(8),
+        operation=zop.add(8),
         test=is_divisible(5),
         target_true=3,
         target_false=0,
     ),
     Monkey(
         items=collections.deque((86, 70, 71, 56)),
-        operation=z.curry(op.add)(1),
+        operation=zop.add(1),
         test=is_divisible(7),
         target_true=4,
         target_false=5,
     ),
     Monkey(
         items=collections.deque((77, 71, 86, 52, 81, 67)),
-        operation=z.curry(op.add)(4),
+        operation=zop.add(4),
         test=is_divisible(17),
         target_true=1,
         target_false=6,
     ),
     Monkey(
         items=collections.deque((89, 87, 60, 78, 54, 77, 98)),
-        operation=z.curry(op.mul)(7),
+        operation=zop.mul(7),
         test=is_divisible(2),
         target_true=1,
         target_false=4,
     ),
     Monkey(
         items=collections.deque((69, 65, 63)),
-        operation=z.curry(op.add)(6),
+        operation=zop.add(6),
         test=is_divisible(3),
         target_true=7,
         target_false=2,
     ),
     Monkey(
         items=collections.deque((89,)),
-        operation=z.flip(op.pow)(2),
+        operation=z.flip(zop.pow)(2),
         test=is_divisible(11),
         target_true=0,
         target_false=2,
@@ -107,5 +107,5 @@ z.pipe(
     MONKEYS,
     z.map(z.flip(getattr)("throw_count")),
     z.topk(2),
-    z.reduce(op.mul),
+    z.reduce(zop.mul),
 )
