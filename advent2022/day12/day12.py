@@ -41,14 +41,14 @@ def path_finder(
 
     def recurse_fun(
         coord: typing.Tuple[int, int],
-        height: int,
+        height: int,  # Accept height as a parameter just to avoid another dict lookup
         cumm_distance: int,
         distances: typing.Mapping[typing.Tuple[int, int], int],
     ) -> None:
         """Recursive fun to solve"""
-        # Accept height as a parameter just to avoid another dict lookup
+
         if terminal_check(coord):
-            # Extra terminal check, but may not be shortest
+            # Do terminal check, but may not actually be shortest
             return None
         x_coord, y_coord = coord
         potentials = (
