@@ -1,10 +1,12 @@
+"""Day 8 of CY2022"""
 import collections
 import operator as op
+import typing
 
 import cytoolz.curried as z
 import numpy as np
 
-with open("input.txt") as fh_in:
+with open("input.txt", encoding="utf-8") as fh_in:
     raw = fh_in.read()
 
 
@@ -20,19 +22,22 @@ trees = z.pipe(
     list,
     np.array,
 )
-assert trees.shape[0] == trees.shape[1]
+assert op.eq(*trees.shape)
 
 
 @z.curry
-def apply_in_all_directions(func, arr):
+def apply_in_all_directions(
+    func_1d: typing.Callable[[np.ndarray], np.ndarray],
+    arr_2d: np.ndarray,
+) -> typing.Iterable[np.ndarray]:
     """Apply a row-wise function in all four directions"""
 
-    def rotate_and_apply(n_rotations):
+    def rotate_and_apply(n_rotations: int) -> np.ndarray:
         """Inner closure"""
         return z.pipe(
-            arr,
+            arr_2d,
             z.partial(np.rot90, k=n_rotations),
-            z.partial(np.apply_along_axis, func, 0),
+            z.partial(np.apply_along_axis, func_1d, 0),
             z.partial(np.rot90, k=4 - n_rotations),
         )
 
@@ -42,7 +47,7 @@ def apply_in_all_directions(func, arr):
     )
 
 
-def determine_visibility(row):
+def determine_visibility(row: np.ndarray) -> np.ndarray:
     """Determine visibility of a given row"""
     max_prior_heights = z.accumulate(
         max,
@@ -62,10 +67,11 @@ z.pipe(
     apply_in_all_directions(determine_visibility),
     z.reduce(np.logical_or),
     np.sum,
+    print,
 )
 
 
-def calc_scenic_scores(row):
+def calc_scenic_scores(row: np.ndarray) -> np.ndarray:
     """Determine scenic scores of the row"""
     prior_trees = collections.deque()
     scenic_scores = []
@@ -85,4 +91,5 @@ z.pipe(
     apply_in_all_directions(calc_scenic_scores),
     z.reduce(np.multiply),
     np.max,
+    print,
 )
