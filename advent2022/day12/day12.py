@@ -33,13 +33,18 @@ def path_finder(
     start: typing.Tuple[int, int],
     terminal_check: typing.Callable[[typing.Tuple[int, int]], bool],
     jump_fail_check: typing.Callable[[int, int], bool],
-) -> typing.Optional[int]:
+) -> typing.Mapping[typing.Tuple[int, int], int]:
     """Find the shortest path to the end"""
-    min_travel = {
+    min_travel: typing.Mapping[typing.Tuple[int, int], int] = {
         start: 0,
     }
 
-    def recurse_fun(coord, height, cumm_distance, distances):
+    def recurse_fun(
+        coord: typing.Tuple[int, int],
+        height: int,
+        cumm_distance: int,
+        distances: typing.Mapping[typing.Tuple[int, int], int],
+    ) -> None:
         """Recursive fun to solve"""
         # Accept height as a parameter just to avoid another dict lookup
         if terminal_check(coord):
