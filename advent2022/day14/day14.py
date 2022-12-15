@@ -70,8 +70,10 @@ cave_floor = z.pipe(
 )
 
 
+@z.curry
 def fill_cave(check_dead, check_stopped, cave):
     """Fill a cave with sand"""
+    cave_fill = cave.copy()
     sand_beg = (500, 0)
     done_filling = False
     while True:
@@ -84,25 +86,25 @@ def fill_cave(check_dead, check_stopped, cave):
             if check_stopped(sand):
                 break
             down = sand[0], sand[1] + 1
-            if down not in cave:
+            if down not in cave_fill:
                 sand = down
                 continue
             down_left = sand[0] - 1, sand[1] + 1
-            if down_left not in cave:
+            if down_left not in cave_fill:
                 sand = down_left
                 continue
             down_right = sand[0] + 1, sand[1] + 1
-            if down_right not in cave:
+            if down_right not in cave_fill:
                 sand = down_right
                 continue
             break
         if done_filling:
             break
         # print(f"Adding sand at { sand }")
-        cave[sand] = "O"
-        if sand_beg in cave:
+        cave_fill[sand] = "O"
+        if sand_beg in cave_fill:
             break
-    return cave
+    return cave_fill
 
 
 def always(x):
@@ -115,34 +117,29 @@ def always(x):
     return closure
 
 
-cave_fill = fill_cave(
-    z.compose_left(
-        z.get(1),
-        zop.lt(cave_floor),
-    ),
-    always(False),
-    cave.copy(),
-)
-len(cave_fill)
 z.pipe(
-    cave_fill,
+    cave,
+    fill_cave(
+        z.compose_left(
+            z.get(1),
+            zop.lt(cave_floor),
+        ),
+        always(False),
+    ),
     z.valfilter(zop.eq("O")),
     len,
     print,
 )
 
-
-cave_fill2 = fill_cave(
-    always(False),
-    z.compose_left(
-        z.get(1),
-        zop.eq(cave_floor + 1),
-    ),
-    cave.copy(),
-)
-len(cave_fill2)
 z.pipe(
-    cave_fill2,
+    cave,
+    fill_cave(
+        always(False),
+        z.compose_left(
+            z.get(1),
+            zop.eq(cave_floor + 1),
+        ),
+    ),
     z.valfilter(zop.eq("O")),
     len,
     print,
