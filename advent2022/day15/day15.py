@@ -103,13 +103,17 @@ SENSORS = z.pipe(
 
 
 @z.curry
-def get_impossibles(y_, sensors):
+def get_impossibles(y_, sensors, *, min_x=None, max_x=None):
     """Get the impossibles"""
     fancy_ranges = []
     for sensor in sensors:
         # print(f"Fancy ranges is now {fancy_ranges}")
         new_range = sensor.set_x_impossible(y_)
         if new_range is None:
+            continue
+        if min_x and min_x > new_range.stop:
+            continue
+        if max_x and max_x < new_range.start:
             continue
         # print(f"New range is {new_range}")
         if not fancy_ranges:
@@ -138,3 +142,16 @@ z.pipe(
     sum,
     z.flip(zop.sub)(len(BEACON_ON_ROW)),
 )
+
+
+for poss_y in range(0, 4_000_000 + 1):
+    if not poss_y % 40_000:
+        print(f"Checking {poss_y}")
+    imposs_x = get_impossibles(poss_y, SENSORS, min_x=0, max_x=4_000_000)
+    if len(imposs_x) > 1:
+        print(f"Poss_y is {poss_y} and imposs_x is {imposs_x}")
+        break
+
+# Poss_y is 2628223 and imposs_x is [FancyRange(start=2939044, stop=4145968), FancyRange(start=-1333240, stop=2939042)]
+
+print(2_939_043 * 4_000_000 + 2_628_223)
