@@ -20,6 +20,30 @@ def calc_dist(alpha, beta):
 
 
 @dataclasses.dataclass
+class FancyRange:
+    """Fancy range thing"""
+
+    start: int
+    stop: int
+
+    def combine(self, other):
+        """Try combining"""
+        if (self.stop + 1) == other.start:
+            return FancyRange(self.start, other.stop)
+        if (other.stop + 1) == self.start:
+            return FancyRange(other.start, self.stop)
+        if self.stop < other.start:
+            return None
+        if other.stop < self.start:
+            return None
+        return FancyRange(min(self.start, other.start), max(self.stop, other.stop))
+
+    def __len__(self):
+        """Standard len fun"""
+        return self.stop - self.start + 1
+
+
+@dataclasses.dataclass
 class Sensor:
     """Quick and dirty sensor"""
 
@@ -51,14 +75,14 @@ class Sensor:
         if dist_for_x <= 0:
             return None
         min_x_impossible = self.sensor_x - dist_for_x + 1
-        print(f"I am {self}.  My min_x_impossible is {min_x_impossible}")
+        # print(f"I am {self}.  My min_x_impossible is {min_x_impossible}")
         assert not self.position_possible(min_x_impossible, other_y)
         assert self.position_possible(min_x_impossible - 1, other_y)
         max_x_impossible = self.sensor_x + dist_for_x - 1
-        print(f"I am {self}.  My max_x_impossible is {max_x_impossible}")
+        # print(f"I am {self}.  My max_x_impossible is {max_x_impossible}")
         assert not self.position_possible(max_x_impossible, other_y)
         assert self.position_possible(max_x_impossible + 1, other_y)
-        return set(range(min_x_impossible, max_x_impossible + 1))
+        return FancyRange(min_x_impossible, max_x_impossible)
 
 
 SENSORS = z.pipe(
@@ -77,13 +101,40 @@ SENSORS = z.pipe(
     tuple,
 )
 
+
+@z.curry
+def get_impossibles(y_, sensors):
+    """Get the impossibles"""
+    fancy_ranges = []
+    for sensor in sensors:
+        # print(f"Fancy ranges is now {fancy_ranges}")
+        new_range = sensor.set_x_impossible(y_)
+        if new_range is None:
+            continue
+        # print(f"New range is {new_range}")
+        if not fancy_ranges:
+            fancy_ranges.append(new_range)
+            continue
+        overlaps = []
+        for index, fancy_range in enumerate(fancy_ranges):
+            if new_range.combine(fancy_range) is not None:
+                overlaps.append(index)
+        if not overlaps:
+            fancy_ranges.append(new_range)
+            continue
+        for index in overlaps:
+            new_range = new_range.combine(fancy_ranges[index])
+        fancy_ranges = [x for i, x in enumerate(fancy_ranges) if i not in overlaps]
+        fancy_ranges.append(new_range)
+    return fancy_ranges
+
+
 BEACON_ON_ROW = {sensor.beacon_x for sensor in SENSORS if sensor.beacon_y == 2_000_000}
 
 z.pipe(
     SENSORS,
-    z.map(z.flip(Sensor.set_x_impossible, 2_000_000)),
-    z.curry(itertools.filterfalse)(zop.is_(None)),
-    z.reduce(zop.or_),
-    z.flip(zop.sub)(BEACON_ON_ROW),
-    len,
+    get_impossibles(2_000_000),
+    z.map(len),
+    sum,
+    z.flip(zop.sub)(len(BEACON_ON_ROW)),
 )
